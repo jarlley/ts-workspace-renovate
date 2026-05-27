@@ -1,4 +1,4 @@
-name: Trivy Security Scan + Auto PRs 
+name: Trivy Security Scan + Renovate
 
 on:
   workflow_dispatch:
@@ -13,6 +13,8 @@ jobs:
   trivy-scan:
     name: Trivy Vulnerability Scan
     runs-on: ubuntu-latest
+    outputs:
+      vulnerabilities_found: ${{ steps.check.outputs.vulnerabilities_found }}
 
     steps:
       - name: Checkout code
@@ -21,9 +23,8 @@ jobs:
       - name: Install Trivy
         run: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
 
-      - name: Run Trivy Scan
-        run: trivy fs ./tests/trivy-fixture --severity CRITICAL,HIGH --format table --output trivy-report.txt
-        #run: trivy fs . --severity CRITICAL,HIGH --format table --output trivy-report.txt
+      - name: Run Trivy
+        run: trivy fs . --severity CRITICAL,HIGH --format table --output trivy-report.txt
 
       - name: Upload report as artifact
         uses: actions/upload-artifact@v4
@@ -31,16 +32,29 @@ jobs:
           name: trivy-report
           path: trivy-report.txt
 
-      - name: Trigger Renovate if vulnerabilities found
-        if: success()
+      - name: Check vulnerabilities
+        id: check
         run: |
           if grep -q "HIGH\|CRITICAL" trivy-report.txt; then
-            echo "Vulnerabilities found, triggering Renovate..."
-            curl -X POST \
-              -H "Authorization: token ${{ secrets.RENOVATE_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/${{ github.repository }}/dispatches \
-              -d '{"event_type":"renovate-trigger"}'
+            echo "vulnerabilities_found=true" >> $GITHUB_OUTPUT
           else
-            echo "No vulnerabilities found, skipping Renovate."
+            echo "vulnerabilities_found=false" >> $GITHUB_OUTPUT
           fi
+
+  renovate:
+    name: Run Renovate
+    runs-on: ubuntu-latest
+    needs: trivy-scan
+    if: needs.trivy-scan.outputs.vulnerabilities_found == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Renovate
+        uses: renovatebot/github-action@v46.1.14
+        with:
+          configurationFile: renovate.json
+        env:
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
