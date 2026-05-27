@@ -1,13 +1,13 @@
-name: Trivy Security Scan + Auto PRs
+name: Trivy Security Scan + Auto PRs 
 
 on:
   workflow_dispatch:
   push:
-    branches: [DECAF-807]
+    branches: [master]
     paths:
       - '.github/workflows/trivy-scan.yml'
   pull_request:
-    branches: [DECAF-807]
+    branches: [master]
 
 jobs:
   trivy-scan:
