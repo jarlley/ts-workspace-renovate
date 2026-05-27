@@ -146,9 +146,9 @@ npm-publish:
 docker-publish:
   stage: publish
   needs: [ "tests", "build" ]
-  image: docker:20.10.21-dind
+  image: docker:20.10.24-dind
   services:
-    - docker:20.10.21-dind
+    - docker:20.10.24-dind
   variables:
     BASE_NAME: ts-workspace
     LATEST_NAME: ${BASE_NAME}-latest
