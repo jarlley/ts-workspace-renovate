@@ -1,0 +1,46 @@
+name: Trivy Security Scan + Auto PRs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [DECAF-807]
+    paths:
+      - '.github/workflows/trivy-scan.yml'
+  pull_request:
+    branches: [DECAF-807]
+
+jobs:
+  trivy-scan:
+    name: Trivy Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Trivy
+        run: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Run Trivy Scan
+        run: trivy fs ./tests/trivy-fixture --severity CRITICAL,HIGH --format table --output trivy-report.txt
+        #run: trivy fs . --severity CRITICAL,HIGH --format table --output trivy-report.txt
+
+      - name: Upload report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.txt
+
+      - name: Trigger Renovate if vulnerabilities found
+        if: success()
+        run: |
+          if grep -q "HIGH\|CRITICAL" trivy-report.txt; then
+            echo "Vulnerabilities found, triggering Renovate..."
+            curl -X POST \
+              -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${{ github.repository }}/dispatches \
+              -d '{"event_type":"renovate-trigger"}'
+          else
+            echo "No vulnerabilities found, skipping Renovate."
+          fi
