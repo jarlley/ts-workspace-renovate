@@ -3,7 +3,7 @@
   "extends": ["config:recommended"],
   "baseBranchPatterns": ["master"],
   "branchPrefix": "security/renovate-",
-  "packageRules": [],
+  "forkProcessing": "enabled",
   "includePaths": [
     "package.json",
     "package-lock.json",
