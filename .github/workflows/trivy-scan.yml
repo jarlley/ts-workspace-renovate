@@ -12,7 +12,6 @@ jobs:
   trivy-scan:
     name: Trivy Vulnerability Scan
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,3 +27,14 @@ jobs:
         with:
           name: trivy-report
           path: trivy-report.txt
+
+  trigger-renovate:
+    name: Trigger Renovate
+    runs-on: ubuntu-latest
+    needs: trivy-scan
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: Trigger Renovate
+        uses: renovatebot/github-action@v40
+        with:
+          token: ${{ secrets.GH_TOKEN }}
