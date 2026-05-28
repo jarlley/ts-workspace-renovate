@@ -4,6 +4,7 @@
   "baseBranchPatterns": ["master"],
   "branchPrefix": "security/renovate-",
   "forkProcessing": "enabled",
+  "ignorePaths": ["**/node_modules/**"],
   "includePaths": [
     "package.json",
     "package-lock.json",
