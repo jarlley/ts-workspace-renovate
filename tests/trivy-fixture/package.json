@@ -2,6 +2,6 @@
   "name": "trivy-fixture",
   "version": "1.0.0",
   "dependencies": {
-    "fast-uri": "3.0.6"
+    "lodash": "4.17.15"
   }
 }
