@@ -1,7 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "baseBranches": ["master"],
+  "baseBranches": ["test/trivy-renovate"],
+  "branchPrefix": "security/renovate-",
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security"]
