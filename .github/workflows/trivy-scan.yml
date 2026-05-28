@@ -3,11 +3,11 @@ name: Trivy Security Scan + Renovate
 on:
   workflow_dispatch:
   push:
-    branches: [master]
+    branches: [development, test/trivy-renovate]
     paths:
       - '.github/workflows/trivy-scan.yml'
   pull_request:
-    branches: [master]
+    branches: [development, test/trivy-renovate]
 
 jobs:
   trivy-scan:
