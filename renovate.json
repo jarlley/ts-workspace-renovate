@@ -14,5 +14,9 @@
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security"]
-  }
+  },
+  "gitAuthor": "jarlley <jarlley@users.noreply.github.com>",
+  "automerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash"
 }
