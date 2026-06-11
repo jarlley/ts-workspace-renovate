@@ -1,7 +1,9 @@
 name: Auto Merge
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     branches: [master]
+
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
@@ -15,5 +17,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           MERGE_METHOD: squash
-          MERGE_LABELS: ""
-          MERGE_REQUIRED_APPROVALS: 0
